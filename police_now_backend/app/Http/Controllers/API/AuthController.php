@@ -47,13 +47,14 @@ class AuthController extends Controller
             'verification_status' => 'pending',
             'address' => $request->address ?? null,
             'profile_image_url' => null,
-        ]);
-
-        // Create the resident profile
+        ]);        // Create the resident profile
         $user->resident()->create([
             'emergency_contact_name' => $request->emergency_contact_name ?? null,
             'emergency_contact_number' => $request->emergency_contact_number ?? null,
         ]);
+
+        // Load the user's role relationship
+        $user->load('role');
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -86,7 +87,8 @@ class AuthController extends Controller
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
-        }
+        }        // Load the user's role relationship
+        $user->load('role');
 
         // Create new token
         $token = $user->createToken('auth_token')->plainTextToken;

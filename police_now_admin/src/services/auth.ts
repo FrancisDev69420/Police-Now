@@ -21,16 +21,15 @@ interface AuthResponse {
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   try {
     console.log('Attempting login with:', { username: credentials.email });
-    const response = await api.post<AuthResponse>('/auth/login', {
+    const response = await api.post<AuthResponse>('/login', {
       username: credentials.email,
       password: credentials.password
     });
     console.log('Login response:', response.data);
-    
-    const { token, user } = response.data;
+      const { token, user } = response.data;
     
     // Check if user is an admin
-    if (user.role.role !== 'admin') {
+    if (!user.role || user.role.role !== 'admin') {
       throw new Error('Unauthorized. Admin access required.');
     }
     
@@ -62,7 +61,7 @@ export const logout = () => {
 
 export const getCurrentUser = async () => {
   try {
-    const response = await api.get('/auth/user');
+    const response = await api.get('/user');
     return response.data;
   } catch (error) {
     console.error('Get current user error:', error);
