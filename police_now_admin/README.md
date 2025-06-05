@@ -1,54 +1,91 @@
-# React + TypeScript + Vite
+# Police Now Admin Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the administrative interface for the Police Now application, built with React, TypeScript, and Material-UI.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js (version 16.x or higher)
+- npm (comes with Node.js)
 
-## Expanding the ESLint configuration
+## Setup Instructions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Install Dependencies**
+   ```bash
+   # Navigate to the project directory
+   cd police_now_admin
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+   # Install dependencies
+   npm install
+   ```
+
+2. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+   The application will be available at `http://localhost:5173`
+
+3. **Build for Production**
+   ```bash
+   npm run build
+   ```
+
+4. **Preview Production Build**
+   ```bash
+   npm run preview
+   ```
+
+## Project Structure
+
+```
+police_now_admin/
+├── src/              # Source files
+│   ├── assets/       # Static assets
+│   ├── components/   # React components
+│   ├── App.tsx       # Main application component
+│   └── main.tsx      # Application entry point
+├── public/           # Public assets
+├── package.json      # Project configuration
+└── tsconfig.json     # TypeScript configuration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Troubleshooting
+
+If you encounter any issues:
+
+1. **Dependencies Issues**
+   ```bash
+   # Remove node_modules and reinstall
+   rm -rf node_modules
+   npm install
+   ```
+
+2. **TypeScript Errors**
+   ```bash
+   # Clear TypeScript cache
+   rm -rf node_modules/.cache/typescript
+   ```
+
+3. **Vite Issues**
+   ```bash
+   # Clear Vite cache
+   rm -rf node_modules/.vite
+   ```
+
+## Development
+
+The application uses:
+- React 18
+- TypeScript
+- Material-UI for components
+- Vite for build tooling
+
+## Support
+
+For any issues or questions, please contact the development team.
