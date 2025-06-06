@@ -55,8 +55,17 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
   }
 };
 
-export const logout = () => {
-  localStorage.removeItem('token');
+export const logout = async () => {
+  try {
+    // Try to call the backend logout endpoint to invalidate the token
+    await api.post('/logout');
+  } catch (error) {
+    // If the API call fails, still proceed with local logout
+    console.error('Backend logout failed:', error);
+  } finally {
+    // Always remove the token from localStorage
+    localStorage.removeItem('token');
+  }
 };
 
 export const getCurrentUser = async () => {

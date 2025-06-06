@@ -13,7 +13,7 @@ interface UseAuthReturn {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -53,11 +53,15 @@ export const useAuth = (): UseAuthReturn => {
       setLoading(false);
     }
   };
-
-  const logout = () => {
-    authLogout();
-    setUser(null);
-    navigate('/login');
+  const logout = async () => {
+    try {
+      await authLogout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      navigate('/login');
+    }
   };
 
   return { user, loading, error, login, logout };
