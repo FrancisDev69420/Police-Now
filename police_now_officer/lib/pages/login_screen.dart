@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,38 +21,66 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));      
-      
-      // TODO: Replace with actual API call
       String badgeNumber = _badgeNumberController.text;
-      // String password = _passwordController.text; // Will be used in actual API call
+      String password = _passwordController.text;
 
-      // For now, just show a success message
-      // In real implementation, you would:
-      // 1. Call your authentication API with badgeNumber and password
-      // 2. Store the auth token
-      // 3. Navigate to the main app screen
+      try {
+        // Call the API
+        final result = await ApiService.officerLogin(badgeNumber, password);
 
-      setState(() {
-        _isLoading = false;
-      });
+        setState(() {
+          _isLoading = false;
+        });
 
-      // Show success message (replace with navigation)
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login attempt with Badge: $badgeNumber'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (result['success']) {
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Welcome, Officer $badgeNumber!'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 1),
+              ),
+            );
+
+            // Navigate to home screen after a short delay
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (mounted) {
+              Navigator.pushReplacementNamed(context, '/home');
+            }
+          }
+        } else {
+          // Show error message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(result['message'] ?? 'Login failed'),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     }
   }
@@ -61,14 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 44, 10, 195),
-              Color.fromARGB(255, 88, 56, 235),
-            ],
-          ),
+          color: Color.fromARGB(255, 44, 10, 195),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -81,43 +103,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Image.asset(
-                    'assets/images/police-now-logo.jpg',
-                    width: 120,
-                    height: 120,
+                    'assets/images/officer-app-logo.png',
+                    width: 150,
+                    height: 150,
                   ),
                 ),
                 
-                const SizedBox(height: 30),
-                
-                // Welcome text
-                const Text(
-                  'Welcome Officer',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                const SizedBox(height: 8),
-                
-                const Text(
-                  'Please sign in to continue',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                  ),
-                ),
-                
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
                 
                 // Login Form
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  margin: const EdgeInsets.symmetric(horizontal: 16), // Add margin to make it smaller
+                  padding: const EdgeInsets.all(20), // Reduced from 24 to 20
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -134,6 +134,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Welcome text
+                        const Text(
+                          'Welcome Officer',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 44, 10, 195),
+                            fontSize: 24, // Reduced from 28 to 24
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        
+                        const SizedBox(height: 6), // Reduced from 8 to 6
+                        
+                        const Text(
+                          'Please sign in to continue',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14, // Reduced from 16 to 14
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        
+                        const SizedBox(height: 24), // Reduced from 30 to 24
+                        
                         // Badge Number Field
                         TextFormField(
                           controller: _badgeNumberController,
@@ -183,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _isPasswordVisible
                                     ? Icons.visibility
                                     : Icons.visibility_off,
-                                color: Color.fromARGB(255, 44, 10, 195),
+                                color: const Color.fromARGB(255, 44, 10, 195),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -206,8 +230,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
                             }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
+                            if (value.length < 8) {
+                              return 'Password must be at least 8 characters';
                             }
                             return null;
                           },

@@ -6,6 +6,7 @@ interface CreateOfficerModalProps {
   onSubmit: (officerData: {
     username: string;
     email: string;
+    password: string; 
     full_name: string;
     phone_number?: string;
     badge_number: string;
@@ -26,6 +27,7 @@ const CreateOfficerModal: React.FC<CreateOfficerModalProps> = ({
   const [formData, setFormData] = useState({
     username: '',
     email: '',
+    password: '',
     full_name: '',
     phone_number: '',
     badge_number: '',
@@ -53,6 +55,13 @@ const CreateOfficerModal: React.FC<CreateOfficerModalProps> = ({
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email format';
+    }
+     if (!formData.password.trim()) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one lowercase letter, one uppercase letter, and one number';
     }
     if (!formData.full_name.trim()) newErrors.full_name = 'Full name is required';
     if (!formData.badge_number.trim()) newErrors.badge_number = 'Badge number is required';
@@ -82,6 +91,7 @@ const CreateOfficerModal: React.FC<CreateOfficerModalProps> = ({
     setFormData({
       username: '',
       email: '',
+      password: '',
       full_name: '',
       phone_number: '',
       badge_number: '',
@@ -151,6 +161,25 @@ const CreateOfficerModal: React.FC<CreateOfficerModalProps> = ({
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter password (min 8 characters)"
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
                 )}
               </div>
 

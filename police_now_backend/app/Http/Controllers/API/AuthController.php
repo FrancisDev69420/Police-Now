@@ -100,6 +100,60 @@ class AuthController extends Controller
     }
 
     /**
+     * Login an officer using badge number
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function officerLogin(Request $request)
+    {
+        $request->validate([
+            'badge_number' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        // Find officer by badge number
+        $officer = \App\Models\Officer::where('badge_number', $request->badge_number)->first();
+
+        if (!$officer) {
+            throw ValidationException::withMessages([
+                'badge_number' => ['Invalid badge number.'],
+            ]);
+        }
+
+        // Get the user associated with this officer
+        $user = $officer->user;
+
+        // Check if password is correct
+        if (!Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['Invalid password.'],
+            ]);
+        }
+
+        // Check if user is verified and active
+        if (!$user->is_verified) {
+            return response()->json([
+                'message' => 'Your account is pending verification. Please contact your administrator.'
+            ], 403);
+        }
+
+        // Load relationships
+        $user->load(['role', 'officer']);
+
+        // Create new token
+        $token = $user->createToken('officer_auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login successful',
+            'user' => $user,
+            'officer' => $officer,
+            'token' => $token
+        ]);
+    }
+
+    /**
      * Get the authenticated user
      *
      * @param Request $request

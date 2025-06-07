@@ -28,6 +28,7 @@ use App\Http\Controllers\API\AdminController;
 // Public Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/officer/login', [AuthController::class, 'officerLogin']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {

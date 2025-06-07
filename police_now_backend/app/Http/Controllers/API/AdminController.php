@@ -9,6 +9,7 @@ use App\Models\Resident;
 use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
@@ -23,6 +24,7 @@ class AdminController extends Controller
         $request->validate([
             'username' => 'required|string|unique:users',
             'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8',
             'full_name' => 'required|string',
             'phone_number' => 'nullable|string',
             'badge_number' => 'required|string|unique:officers',
@@ -38,14 +40,11 @@ class AdminController extends Controller
             return response()->json(['message' => 'Officer role not found'], 500);
         }
 
-        // Generate a random password that the officer will change on first login
-        $tempPassword = Str::random(12);
-
         // Create the user
         $user = User::create([
             'username' => $request->username,
             'email' => $request->email,
-            'password' => Hash::make($tempPassword),
+            'password' => Hash::make($request->password),
             'full_name' => $request->full_name,
             'phone_number' => $request->phone_number,
             'role_id' => $role->id,
@@ -72,8 +71,7 @@ class AdminController extends Controller
         return response()->json([
             'message' => 'Officer created successfully',
             'user' => $user,
-            'officer' => $officer,
-            'temporary_password' => $tempPassword // In production, you would NOT return this and only email it
+            'officer' => $officer
         ], 201);
     }
     
@@ -156,19 +154,19 @@ class AdminController extends Controller
             $residentRole = UserRole::where('role', 'resident')->first();
             
             if (!$residentRole) {
-                \Log::error('Resident role not found in database');
+                Log::error('Resident role not found in database');
                 return response()->json(['message' => 'Resident role not found'], 404);
             }
             
-            \Log::info('Found resident role with ID: ' . $residentRole->id);
+            Log::info('Found resident role with ID: ' . $residentRole->id);
             
             // Get all users with resident role
             $users = User::where('role_id', $residentRole->id)->get();
-            \Log::info('Found ' . $users->count() . ' users with resident role');
+            Log::info('Found ' . $users->count() . ' users with resident role');
             
             // Get all resident profiles
             $residents = Resident::with('user')->get();
-            \Log::info('Found ' . $residents->count() . ' resident profiles');
+            Log::info('Found ' . $residents->count() . ' resident profiles');
             
             // If no residents found, return empty array with message
             if ($residents->isEmpty()) {
@@ -219,7 +217,7 @@ class AdminController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error fetching residents: ' . $e->getMessage());
+            Log::error('Error fetching residents: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Error fetching residents',
                 'error' => $e->getMessage()

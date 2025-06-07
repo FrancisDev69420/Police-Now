@@ -10,11 +10,14 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen> {
   @override
+  
   void initState() {
     super.initState();
     // Simulate loading time - you can replace this with actual initialization logic
     _loadApp();
-  }  Future<void> _loadApp() async {
+  }  
+  
+  Future<void> _loadApp() async {
     // Simulate app initialization (replace with your actual loading logic)
     print('Loading started...');
     await Future.delayed(const Duration(seconds: 3));
@@ -31,6 +34,7 @@ class _LandingScreenState extends State<LandingScreen> {
       print('Widget not mounted, cannot navigate');
     }
   }
+  
   @override
   Widget build(BuildContext context) {
     print('Landing screen build method called');
@@ -45,20 +49,23 @@ class _LandingScreenState extends State<LandingScreen> {
             children: [
               // Logo
               Image.asset(
-                'assets/images/police-now-logo.jpg',
+                'assets/images/officer-app-logo.png',
                 width: 200,
                 height: 200,
-              ),              const SizedBox(height: 50),
+              ),              
+              
+              const SizedBox(height: 50),
               
               // Loading progress bar
-              Container(
+              const SizedBox(
                 width: 250,
                 height: 4,
-                child: const LinearProgressIndicator(
+                child: LinearProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   backgroundColor: Colors.white30,
                 ),
               ),
+              
               const SizedBox(height: 20),
               
               // Loading text
@@ -67,7 +74,8 @@ class _LandingScreenState extends State<LandingScreen> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
-                  fontWeight: FontWeight.w300,                ),
+                  fontWeight: FontWeight.w300,                
+                ),
               ),
             ],
           ),
