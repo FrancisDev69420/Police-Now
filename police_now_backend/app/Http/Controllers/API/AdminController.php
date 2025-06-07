@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Officer;
+use App\Models\Resident;
 use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -143,5 +144,143 @@ class AdminController extends Controller
         $user->delete();
         
         return response()->json(['message' => 'Officer account deleted successfully']);
+    }
+
+    /**
+     * Get all residents
+     */
+    public function getAllResidents()
+    {
+        try {
+            // Get the resident role ID
+            $residentRole = UserRole::where('role', 'resident')->first();
+            
+            if (!$residentRole) {
+                \Log::error('Resident role not found in database');
+                return response()->json(['message' => 'Resident role not found'], 404);
+            }
+            
+            \Log::info('Found resident role with ID: ' . $residentRole->id);
+            
+            // Get all users with resident role
+            $users = User::where('role_id', $residentRole->id)->get();
+            \Log::info('Found ' . $users->count() . ' users with resident role');
+            
+            // Get all resident profiles
+            $residents = Resident::with('user')->get();
+            \Log::info('Found ' . $residents->count() . ' resident profiles');
+            
+            // If no residents found, return empty array with message
+            if ($residents->isEmpty()) {
+                return response()->json([
+                    'message' => 'No residents found',
+                    'data' => [],
+                    'debug_info' => [
+                        'resident_role_id' => $residentRole->id,
+                        'users_with_role' => $users->count(),
+                        'resident_profiles' => $residents->count()
+                    ]
+                ]);
+            }
+            
+            // Transform the data to include all necessary information
+            $formattedResidents = $residents->map(function ($resident) {
+                return [
+                    'id' => $resident->id,
+                    'user_id' => $resident->user_id,
+                    'username' => $resident->user->username,
+                    'email' => $resident->user->email,
+                    'full_name' => $resident->user->full_name,
+                    'phone_number' => $resident->user->phone_number,
+                    'address' => $resident->user->address,
+                    'emergency_contact_name' => $resident->emergency_contact_name,
+                    'emergency_contact_number' => $resident->emergency_contact_number,
+                    'medical_info' => $resident->medical_info,
+                    'residential_address' => $resident->residential_address,
+                    'city' => $resident->city,
+                    'province' => $resident->province,
+                    'postal_code' => $resident->postal_code,
+                    'is_verified' => $resident->user->is_verified,
+                    'verification_status' => $resident->user->verification_status,
+                    'registration_date' => $resident->user->registration_date,
+                    'created_at' => $resident->created_at,
+                    'updated_at' => $resident->updated_at
+                ];
+            });
+            
+            return response()->json([
+                'message' => 'Residents retrieved successfully',
+                'data' => $formattedResidents,
+                'debug_info' => [
+                    'resident_role_id' => $residentRole->id,
+                    'users_with_role' => $users->count(),
+                    'resident_profiles' => $residents->count()
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error fetching residents: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error fetching residents',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Update resident details
+     */
+    public function updateResident(Request $request, $id)
+    {
+        $resident = Resident::where('id', $id)->first();
+        
+        if (!$resident) {
+            return response()->json(['message' => 'Resident not found'], 404);
+        }
+        
+        // Update resident and related user details
+        if ($request->has('emergency_contact_name')) $resident->emergency_contact_name = $request->emergency_contact_name;
+        if ($request->has('emergency_contact_number')) $resident->emergency_contact_number = $request->emergency_contact_number;
+        if ($request->has('medical_info')) $resident->medical_info = $request->medical_info;
+        
+        $resident->save();
+        
+        // Update user details if provided
+        $user = $resident->user;
+        if ($request->has('full_name')) $user->full_name = $request->full_name;
+        if ($request->has('phone_number')) $user->phone_number = $request->phone_number;
+        if ($request->has('address')) $user->address = $request->address;
+        if ($request->has('is_verified')) $user->is_verified = $request->is_verified;
+        if ($request->has('verification_status')) $user->verification_status = $request->verification_status;
+        
+        $user->save();
+        
+        return response()->json([
+            'message' => 'Resident details updated',
+            'resident' => $resident->load('user')
+        ]);
+    }
+    
+    /**
+     * Delete a resident account
+     */
+    public function deleteResident($id)
+    {
+        $resident = Resident::find($id);
+        
+        if (!$resident) {
+            return response()->json(['message' => 'Resident not found'], 404);
+        }
+        
+        // Get the user associated with this resident
+        $user = $resident->user;
+        
+        // Delete the resident first (child record)
+        $resident->delete();
+        
+        // Then delete the user (parent record)
+        $user->delete();
+        
+        return response()->json(['message' => 'Resident account deleted successfully']);
     }
 }
