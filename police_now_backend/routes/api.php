@@ -64,5 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/officers', [AdminController::class, 'getAllOfficers']);
         Route::put('/officers/{id}', [AdminController::class, 'updateOfficer']);
         Route::delete('/officers/{id}', [AdminController::class, 'deleteOfficer']);
+        
+        Route::get('/residents', [AdminController::class, 'getAllResidents']);
+        Route::put('/residents/{id}', [AdminController::class, 'updateResident']);
+        Route::delete('/residents/{id}', [AdminController::class, 'deleteResident']);
     });
 });

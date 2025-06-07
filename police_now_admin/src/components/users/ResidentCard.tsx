@@ -8,6 +8,23 @@ interface ResidentCardProps {
 }
 
 const ResidentCard: React.FC<ResidentCardProps> = ({ resident, onEdit, onDelete }) => {
+  // Safely access nested properties
+  const getInitials = (name: string) => {
+    try {
+      return name.split(' ').map(n => n[0]).join('').slice(0, 2);
+    } catch (error) {
+      return '??';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between">
@@ -15,7 +32,7 @@ const ResidentCard: React.FC<ResidentCardProps> = ({ resident, onEdit, onDelete 
           <div className="flex items-center gap-3 mb-2">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-green-600 font-semibold text-lg">
-                {resident.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                {getInitials(resident.full_name)}
               </span>
             </div>
             <div>
@@ -31,7 +48,7 @@ const ResidentCard: React.FC<ResidentCardProps> = ({ resident, onEdit, onDelete 
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-yellow-100 text-yellow-800'
               }`}>
-                {resident.verification_status}
+                {resident.verification_status || 'Pending'}
               </span>
             </div>
             
@@ -47,20 +64,14 @@ const ResidentCard: React.FC<ResidentCardProps> = ({ resident, onEdit, onDelete 
               </div>
             )}
             
-            {resident.resident.residential_address && (
+            {resident.address && (
               <div className="text-sm">
                 <span className="text-gray-500">Address:</span>
-                <span className="ml-2">{resident.resident.residential_address}</span>
-                {resident.resident.city && resident.resident.province && (
-                  <span className="block ml-2 text-gray-400">
-                    {resident.resident.city}, {resident.resident.province}
-                    {resident.resident.postal_code && ` ${resident.resident.postal_code}`}
-                  </span>
-                )}
+                <span className="ml-2">{resident.address}</span>
               </div>
             )}
             
-            {resident.resident.emergency_contact_name && (
+            {resident.resident?.emergency_contact_name && (
               <div className="text-sm">
                 <span className="text-gray-500">Emergency Contact:</span>
                 <span className="ml-2">{resident.resident.emergency_contact_name}</span>
@@ -74,7 +85,7 @@ const ResidentCard: React.FC<ResidentCardProps> = ({ resident, onEdit, onDelete 
             
             <div className="text-sm">
               <span className="text-gray-500">Registered:</span>
-              <span className="ml-2">{new Date(resident.registration_date).toLocaleDateString()}</span>
+              <span className="ml-2">{formatDate(resident.registration_date)}</span>
             </div>
             
             <div className="text-sm">

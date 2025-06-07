@@ -16,8 +16,8 @@ export const userService = {
   // Get all residents  
   async getResidents(): Promise<ResidentUser[]> {
     try {
-      const response = await api.get('/residents');
-      return response.data;
+      const response = await api.get('/admin/residents');
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching residents:', error);
       throw error;
@@ -87,7 +87,7 @@ export const userService = {
     postal_code: string;
   }>): Promise<ResidentUser> {
     try {
-      const response = await api.put(`/residents/${id}`, updateData);
+      const response = await api.put(`/admin/residents/${id}`, updateData);
       return response.data;
     } catch (error) {
       console.error('Error updating resident:', error);
@@ -98,7 +98,7 @@ export const userService = {
   // Delete resident
   async deleteResident(id: number): Promise<{ message: string }> {
     try {
-      const response = await api.delete(`/residents/${id}`);
+      const response = await api.delete(`/admin/residents/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting resident:', error);
