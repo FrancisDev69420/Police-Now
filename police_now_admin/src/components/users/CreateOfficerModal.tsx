@@ -219,13 +219,9 @@ const CreateOfficerModal: React.FC<CreateOfficerModalProps> = ({
                   }`}
                 >
                   <option value="">Select rank</option>
-                  <option value="Officer">Officer</option>
-                  <option value="Sergeant">Sergeant</option>
-                  <option value="Lieutenant">Lieutenant</option>
-                  <option value="Captain">Captain</option>
-                  <option value="Major">Major</option>
-                  <option value="Colonel">Colonel</option>
-                  <option value="Chief">Chief</option>
+                  <option value="PO1">PO1</option>
+                  <option value="PO2">PO2</option>
+                  <option value="PO3">PO3</option>
                 </select>
                 {errors.rank && (
                   <p className="text-red-500 text-xs mt-1">{errors.rank}</p>
